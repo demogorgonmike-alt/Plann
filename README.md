@@ -27,19 +27,20 @@ Cuando Joan pida cambios ("mueve lo de Física al jueves", "añade la entrega de
    - `type`: `""` normal, `"exam"`, `"deadline"` o `"lab"`. La primera tarea normal del día se muestra como **Tarea A**: pon delante la más importante.
    - **Los `id` deben ser únicos y no cambiar nunca**, porque `progress.json` marca las tareas por `id`. Para mover una tarea a otro día, mueve el objeto entero con su mismo `id`. Para una tarea nueva, usa un id nuevo (p. ej. `261203a`, o `261203x` si ya existe).
    - Tareas concretas y pequeñas ("Física: tema 3, problemas 1–5"), máximo 2–3 por día.
-3. Fechas importantes (exámenes, entregas): `key_dates["AAAA-MM-DD"] = {"type": "exam"|"deadline", "label": "..."}`. Salen como cuenta atrás arriba.
+3. Fechas importantes (exámenes, entregas): `key_dates["AAAA-MM-DD"] = {"type": "exam"|"deadline", "label": "...", "s": "asignatura"}`. Salen como cuenta atrás arriba.
 4. Prácticas de laboratorio: `lab_dates` (cambian la tarde de ese día).
 5. Horario de clases: `classes["1".."5"]` (1 = lunes), `[asignatura, inicio, fin]`, asignaturas en `subjects`.
 6. Actualiza `updated` con la fecha del cambio.
 7. Para ver cómo va Joan, lee `progress.json`: `done[id].v = 1` está hecha, `0` desmarcada. Cruza los `id` con `plan.json`.
 8. Sube los cambios a `main` con un mensaje claro.
 
-## Para Claude: notas y agenda de Joan
+## Para Claude: notas, exámenes y entregas de Joan
 
-En `progress.json` (lo escribe la app; si lo editas, respeta el formato y sube `t` a la hora actual en ms):
+En `progress.json` (lo escribe la app; si lo editas, respeta el formato y pon `t` = hora actual en ms):
 
-- `notes[id] = {"s": "mates", "text": "...", "d": "AAAA-MM-DD", "c": "HH:MM", "t": ms, "del": 0|1}`: lo que están dando en cada asignatura.
-- `agenda[id] = {"text": "...", "date": "AAAA-MM-DD" o "", "done": 0|1, "c": ..., "t": ms, "del": 0|1}`: cosas sueltas tipo agenda.
+- `notes[id] = {"s": "dibujo"|"mates"|"fisica"|"sistemas"|"general", "text": "...", "d": "AAAA-MM-DD", "c": "HH:MM", "done": 0|1, "t": ms, "del": 0|1}`: lo que apunta en cada asignatura; `general` = apartado Notas.
+- `events[id] = {"s": "mates", "type": "exam"|"deadline", "date": "AAAA-MM-DD", "label": "" o nombre, "t": ms, "del": 0|1}`: exámenes y entregas que Joan crea desde la app. Salen en la cuenta atrás, el calendario y Hoy, igual que `plan.json → key_dates`.
+- `agenda` es el formato antiguo; la app lo convierte en notas `general`.
 - Los borrados se marcan con `del: 1`; no elimines claves, para que la sincronización no las resucite.
 
 ## Rutina (`plan.json` → `routine`)

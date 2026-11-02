@@ -36,8 +36,8 @@ h1{font-size:28px;line-height:1.1} h2{font-size:22px} h3{font-size:17px;margin-b
 .chip{display:inline-flex;align-items:baseline;gap:6px;padding:6px 12px;border-radius:999px;background:var(--soft);font-size:14px}
 .chip b{font:500 18px var(--mono)}
 .chip.exam{background:var(--exam)}.chip.deadline{background:var(--deadline)}.chip.done{opacity:.5}
-nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:5;background:rgba(255,255,255,.96);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:6px 6px calc(env(safe-area-inset-bottom) + 6px);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
-nav.tabs button{flex:1;max-width:120px;font:500 12.5px var(--font);color:var(--muted);background:none;border:0;padding:8px 2px;border-radius:10px;cursor:pointer}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:5;background:rgba(255,255,255,.96);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px;justify-items:stretch;padding:6px max(6px,calc((100% - 640px)/2)) calc(env(safe-area-inset-bottom) + 6px);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+nav.tabs button{width:100%;text-align:center;white-space:nowrap;font:500 12px var(--font);color:var(--muted);background:none;border:0;padding:9px 0;border-radius:10px;cursor:pointer}
 nav.tabs button[aria-selected="true"]{color:var(--ink);background:var(--soft);font-weight:600}
 button:focus-visible,input:focus-visible,textarea:focus-visible,a:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 section{display:grid;gap:18px}
@@ -97,8 +97,14 @@ details summary{cursor:pointer;color:var(--muted);font-size:14px;padding:4px 0}
 .subj h3{margin:0;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .subj h3 small{font:400 12px var(--mono);color:var(--muted)}
 .adder{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;min-width:0}
-#ag-form #ag-text{flex:1 1 100%}
-#ag-form #ag-date{flex:1 1 auto;min-width:0}
+#quick #q-text,#ev-form #ev-label{flex:1 1 100%}
+.adder select{font:15px var(--font);padding:8px 10px;border:1px solid rgba(0,0,0,.12);border-radius:10px;background:#fff;color:var(--ink);flex:1 1 auto;min-width:0}
+#ev-form #ev-date{flex:1 1 auto;min-width:0}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{border:0;border-radius:14px;padding:16px 14px;text-align:left;font:600 17px var(--font);color:var(--ink);cursor:pointer;display:grid;gap:6px;align-content:start;min-height:96px}
+.tile small{font:400 13px var(--font);color:#555}
+.tile.wide{grid-column:1/-1;background:var(--agenda);min-height:70px}
+.back{border:0;background:none;font:600 15px var(--font);color:var(--ink);padding:4px 0;cursor:pointer;justify-self:start}
 .wrap>*,section>*,.subj,#subjects{min-width:0}
 html,body{overflow-x:hidden}
 .adder textarea,.adder input[type=text]{flex:1;min-width:0;font:15px var(--font);padding:10px 12px;border:1px solid rgba(0,0,0,.12);border-radius:10px;background:#fff;color:var(--ink);resize:vertical}
@@ -160,24 +166,48 @@ label.f{display:grid;gap:4px;font-size:14px;font-weight:500}
   </section>
 
   <section id="view-asig" hidden>
-    <div class="head"><h2>Asignaturas</h2><span>Lo que estáis dando</span></div>
-    <div id="subjects" style="display:grid;gap:12px"></div>
-    <div class="subj" style="background:var(--agenda)">
-      <h3>Agenda <small id="ag-count"></small></h3>
-      <form class="adder" id="ag-form" autocomplete="off">
-        <input type="text" id="ag-text" placeholder="Comprar láminas A3, pedir cita…" aria-label="Nueva cosa para la agenda">
-        <input type="date" id="ag-date" aria-label="Fecha (opcional)">
-        <button class="btn" type="submit">Añadir</button>
-      </form>
-      <ul class="tasks" id="ag-list"></ul>
-      <details id="ag-done-wrap"><summary id="ag-done-sum">Hechas</summary><ul class="tasks" id="ag-done" style="margin-top:6px"></ul></details>
+    <div id="asig-main" style="display:grid;gap:18px">
+      <div class="head"><h2>Asignaturas</h2><span>Apunta lo que sea</span></div>
+      <div class="subj" style="background:var(--soft)">
+        <form class="adder" id="quick" autocomplete="off">
+          <input type="text" id="q-text" placeholder="Tema 4 de derivadas, comprar láminas A3…" aria-label="Nueva nota">
+          <select id="q-subj" aria-label="Asignatura"></select>
+          <button class="btn" type="submit">Añadir</button>
+        </form>
+        <p class="msg" id="q-msg"></p>
+      </div>
+      <div class="tiles" id="tiles"></div>
+    </div>
+    <div id="asig-detail" style="display:grid;gap:16px" hidden>
+      <button type="button" class="back" id="back">← Asignaturas</button>
+      <div class="head"><h2 id="d-title"></h2><span id="d-meta"></span></div>
+      <div class="subj" id="d-events-box">
+        <h3>Exámenes y entregas</h3>
+        <form class="adder" id="ev-form" autocomplete="off">
+          <select id="ev-type" aria-label="Tipo"><option value="exam">Examen</option><option value="deadline">Entrega</option></select>
+          <input type="date" id="ev-date" aria-label="Fecha">
+          <input type="text" id="ev-label" placeholder="Nombre (opcional): Parcial temas 1–3" aria-label="Nombre">
+          <button class="btn" type="submit">Añadir</button>
+        </form>
+        <p class="msg" id="ev-msg"></p>
+        <ul class="tasks" id="ev-list"></ul>
+      </div>
+      <div class="subj" id="d-notes-box">
+        <h3>Notas</h3>
+        <form class="adder" id="dn-form" autocomplete="off">
+          <textarea rows="2" id="dn-text" placeholder="Qué estáis haciendo: tema, ejercicio, entrega…" aria-label="Nueva nota"></textarea>
+          <button class="btn" type="submit">Añadir</button>
+        </form>
+        <ul class="tasks" id="dn-list"></ul>
+        <details id="dn-done-wrap"><summary id="dn-done-sum">Hechas</summary><ul class="tasks" id="dn-done" style="margin-top:6px"></ul></details>
+      </div>
     </div>
   </section>
 
   <section id="view-ajustes" hidden>
     <div class="head"><h2>Sincronización</h2><span id="aj-repo"></span></div>
     <div class="card">
-      <p class="msg">Con tu clave de GitHub, lo que marcas, tus notas y tu agenda se guardan en tu repositorio. La clave se queda solo en este móvil.</p>
+      <p class="msg">Con tu clave de GitHub, lo que marcas, tus notas y tus exámenes y entregas se guardan en tu repositorio. La clave se queda solo en este móvil.</p>
       <label class="f" for="in-repo">Repositorio (usuario/nombre)<input type="text" id="in-repo" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="usuario/plann"></label>
       <label class="f" for="in-token">Clave de acceso (token)<input type="password" id="in-token" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="github_pat_…"></label>
       <div class="row">
@@ -188,7 +218,7 @@ label.f{display:grid;gap:4px;font-size:14px;font-weight:500}
     </div>
     <div class="card">
       <h3 style="margin:0">Hablar con Claude</h3>
-      <p class="msg">Copia el resumen (tareas de la semana, notas de las asignaturas y agenda) y pégalo en el chat para que te ayude a reorganizarte.</p>
+      <p class="msg">Copia el resumen (tareas de la semana, notas y exámenes) y pégalo en el chat para que te ayude a reorganizarte.</p>
       <div class="row">
         <button type="button" class="btn" id="btn-copy">Copiar resumen</button>
         <a class="btn ghost" href="https://claude.ai/new">Abrir Claude</a>
@@ -226,8 +256,13 @@ const shortDate=s=>{const d=parseIso(s);return d.getDate()+" "+MON[d.getMonth()]
 /* ---------- estado ---------- */
 let plan=LS.get("plan.cache",null);
 let st=LS.get("plan.state",null);
-if(!st){st={done:LS.get("plan.progress",{}),notes:{},agenda:{}}}
-["done","notes","agenda"].forEach(k=>{if(!st[k])st[k]={}});
+if(!st){st={done:LS.get("plan.progress",{}),notes:{},agenda:{},events:{}}}
+const MAPS=["done","notes","agenda","events"];
+MAPS.forEach(k=>{if(!st[k])st[k]={}});
+// La antigua Agenda pasa a ser el apartado "Notas" (general)
+function migrate(){for(const id in st.agenda){const a=st.agenda[id];if(a.del||st.notes[id])continue;
+  st.notes[id]={s:"general",text:a.text,d:(a.c||"").slice(0,10)||iso(new Date()),c:"",done:a.done?1:0,t:a.t||Date.now()}}}
+migrate();
 const saveState=()=>LS.set("plan.state",st);
 let cfg=LS.get("plan.cfg",{repo:"",token:""});
 if(!cfg.repo&&/\.github\.io$/.test(location.hostname)){const seg=location.pathname.split("/").filter(Boolean)[0];if(seg)cfg.repo=location.hostname.split(".")[0]+"/"+seg}
@@ -261,9 +296,9 @@ async function syncProgress(){
   try{
     for(let i=0;i<2;i++){
       const j=await gh("progress.json"),remote=JSON.parse(b64dec(j.content));
-      const merged={done:mergeMap(remote.done,st.done),notes:mergeMap(remote.notes,st.notes),agenda:mergeMap(remote.agenda,st.agenda)};
-      st=merged;saveState();
-      const same=["done","notes","agenda"].every(k=>JSON.stringify(merged[k])===JSON.stringify(remote[k]||{}));
+      const merged={};MAPS.forEach(k=>merged[k]=mergeMap(remote[k],st[k]));
+      st=merged;migrate();Object.assign(merged,st);saveState();
+      const same=MAPS.every(k=>JSON.stringify(merged[k])===JSON.stringify(remote[k]||{}));
       if(same)break;
       const out=Object.assign({},remote,merged,{updated:new Date().toISOString()});
       try{await gh("progress.json",{method:"PUT",body:JSON.stringify({message:"Actualización desde la app",content:b64enc(JSON.stringify(out,null,1)+"\n"),sha:j.sha})});break}
@@ -280,7 +315,17 @@ function change(map,id,val){st[map][id]=Object.assign({},val,{t:Date.now()});sav
 function sleepTarget(d){const L=plan.sleep_ladder;for(const [a,b,t] of L){if(d>=a&&(b===null||d<=b))return t}return d<L[0][0]?L[0][2]:L[L.length-1][2]}
 const nextIso=s=>{const d=parseIso(s);d.setDate(d.getDate()+1);return iso(d)};
 const prevWeekday=dow=>dow===1?5:dow-1;
-const subjName=s=>plan.subjects[s]||s;
+const subjName=s=>s==="general"?"Notas":(plan.subjects[s]||s);
+const SHORT={dibujo:"Dibujo",mates:"Mates",fisica:"Física",sistemas:"Sistemas",general:"Notas"};
+const shortName=s=>SHORT[s]||subjName(s);
+// Exámenes y entregas: los del plan + los que creas desde Asignaturas
+function events(){
+  const out=Object.entries(plan.key_dates||{}).map(([d,k])=>({id:"plan-"+d,date:d,type:k.type,label:k.label,s:k.s||"",plan:true}));
+  Object.entries(st.events).forEach(([id,e])=>{if(e.del||!e.date)return;
+    out.push({id,date:e.date,type:e.type,s:e.s,label:e.label||((e.type==="exam"?"Examen ":"Entrega ")+shortName(e.s))})});
+  return out.sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0);
+}
+const eventsOn=d=>events().filter(e=>e.date===d);
 function planTasks(d){return (plan.tasks[d]||[]).filter(t=>!t.type)}
 function buildDay(dow,d){
   const out=[],R=plan.routine,lab=!!(d&&plan.lab_dates.includes(d));
@@ -300,8 +345,8 @@ function buildDay(dow,d){
         const prev=(plan.classes[String(prevWeekday(dow))]||[]).map(c=>subjName(c[0]));
         add(arrive,first-10,"k-biblio","Biblio · repaso rápido",prev.length?"Repasa lo de "+DOW[prevWeekday(dow)].toLowerCase()+": "+[...new Set(prev)].join(", "):"");
       }else add(arrive,first,"","Llegada","Margen hasta clase");
-      const k=d&&plan.key_dates[d];
-      cls.forEach(([s,a,b])=>add(a,b,"k-"+s,subjName(s),k&&k.type==="exam"&&k.label.toLowerCase().includes(subjName(s).slice(0,4).toLowerCase())?"Comprueba hora y aula del examen":""));
+      const evs=d?eventsOn(d):[];
+      cls.forEach(([s,a,b])=>{const e=evs.find(x=>x.s===s);add(a,b,"k-"+s,subjName(s),e?(e.type==="exam"?"Hoy: ":"Entrega hoy: ")+e.label+". Comprueba hora y aula":"")});
       last=toMin(cls[cls.length-1][2]);
     }
     const lunchEnd=last+R.lunch_min;
@@ -367,9 +412,9 @@ function buildDay(dow,d){
   return out;
 }
 function tasksFor(d){const l=(plan.tasks[d]||[]).slice();
+  events().filter(e=>e.date===d&&!e.plan).forEach(e=>l.unshift({id:"ev-"+e.id,text:e.label.toUpperCase(),type:e.type}));
   if(parseIso(d).getDay()===0&&!l.some(t=>/^Planificaci/.test(t.text)))l.push({id:"plan-"+d,text:"Planificación semanal ("+plan.routine.weekly_planning+", 30 min)",type:""});return l}
 const isDone=id=>!!(st.done[id]&&st.done[id].v);
-const agendaItems=()=>Object.entries(st.agenda).filter(([,a])=>!a.del).map(([id,a])=>Object.assign({id},a));
 
 /* ---------- render: listas ---------- */
 function taskLi(id,text,cls,checked,onChange,extraHtml){
@@ -387,16 +432,13 @@ function renderTaskList(ul,d,markA,prefix){
 function renderHoy(){
   const now=new Date(),today=iso(now),dow=now.getDay();
   $("hoy-title").textContent=DOW[dow]+" "+now.getDate()+" de "+MON[now.getMonth()];
-  const k=plan.key_dates[today];$("hoy-meta").textContent=k?k.label.toUpperCase():"";
+  $("hoy-meta").textContent=eventsOn(today).map(e=>e.label.toUpperCase()).join(" · ");
   const nowMin=now.getHours()*60+now.getMinutes()+(now.getHours()<4?1440:0);
   const ul=$("hoy-timeline");ul.innerHTML="";
   buildDay(dow,today).forEach(([a,b,c,t,s])=>{const li=document.createElement("li"),cur=nowMin>=a&&nowMin<b;
     li.className=c+(cur?" now":nowMin>=b?" past":"");
     li.innerHTML='<span class="t">'+fmt(a)+'–'+fmt(b)+'</span><span class="what">'+esc(t)+(cur?'<span class="nowtag">AHORA · quedan '+(b-nowMin)+' min</span>':'')+(s?'<span class="sub">'+esc(s)+'</span>':'')+'</span>';ul.appendChild(li)});
   const tl=$("hoy-tasks");renderTaskList(tl,today,true,"h");
-  agendaItems().filter(a=>!a.done&&a.date&&a.date<=today).sort((x,y)=>x.date<y.date?-1:1).forEach(a=>{
-    if(tl.querySelector(".empty"))tl.innerHTML="";
-    tl.appendChild(taskLi("ha-"+a.id,'<span class="tag">AGENDA'+(a.date<today?" · "+shortDate(a.date):"")+'</span>'+esc(a.text),"ag",false,v=>change("agenda",a.id,Object.assign({},st.agenda[a.id],{done:v?1:0}))))});
   $("hoy-sleep").innerHTML="<b>Esta noche:</b> cena a las "+plan.routine.dinner+", luz apagada a las <b>"+sleepTarget(today)+"</b>, despertador a las "+plan.routine.wake+".";
 }
 function renderSemana(){
@@ -417,7 +459,6 @@ function renderMes(){
   const t0=new Date();let y=t0.getFullYear(),m=t0.getMonth();const months=[];
   while(new Date(y,m,1)<=endD&&months.length<3){months.push([y,m]);m++;if(m>11){m=0;y++}}
   if(!months.length)months.push([t0.getFullYear(),t0.getMonth()]);
-  const ag=agendaItems().filter(a=>a.date&&!a.done);
   months.forEach(([yy,mm])=>{
     const wrap=document.createElement("div");wrap.innerHTML="<h3>"+MON[mm][0].toUpperCase()+MON[mm].slice(1)+" "+yy+"</h3>";
     const g=document.createElement("div");g.className="month";
@@ -427,9 +468,8 @@ function renderMes(){
     for(let d=1;d<=days;d++){
       const s=yy+"-"+pad(mm+1)+"-"+pad(d),c=document.createElement("div");c.className="day"+(s===today?" today":s<today?" past":"");
       let h='<span class="n">'+d+'</span>';
-      if(plan.key_dates[s])h+='<span class="m '+plan.key_dates[s].type+'">'+esc(plan.key_dates[s].label)+'</span>';
+      eventsOn(s).forEach(e=>{h+='<span class="m '+e.type+'">'+esc(e.label)+'</span>'});
       if(plan.lab_dates.includes(s))h+='<span class="m lab">Lab?</span>';
-      const na=ag.filter(a=>a.date===s).length;if(na)h+='<span class="m ag">Agenda '+na+'</span>';
       const t=tasksFor(s);if(t.length)h+='<span style="font-family:var(--mono);color:var(--muted)">'+t.filter(x=>isDone(x.id)).length+'/'+t.length+'</span>';
       c.innerHTML=h;g.appendChild(c)}
     wrap.appendChild(g);box.appendChild(wrap)});
@@ -437,7 +477,7 @@ function renderMes(){
   const monday=s=>{const x=parseIso(s);x.setDate(x.getDate()-((x.getDay()+6)%7));return iso(x)};
   const thisMon=monday(today),weeks={};
   const first=Object.keys(plan.tasks).sort()[0]||today;
-  const days=Object.keys(plan.tasks).concat(Array.from({length:200},(_,i)=>{const x=parseIso(first);x.setDate(x.getDate()+i);return iso(x)}).filter(s=>parseIso(s).getDay()===0&&s<=plan.semester.end));
+  const days=Object.keys(plan.tasks).concat(events().map(e=>e.date)).concat(Array.from({length:200},(_,i)=>{const x=parseIso(first);x.setDate(x.getDate()+i);return iso(x)}).filter(s=>parseIso(s).getDay()===0&&s<=plan.semester.end));
   days.forEach(s=>{(weeks[monday(s)]=weeks[monday(s)]||new Set()).add(s)});
   const past=document.createElement("details");past.innerHTML="<summary>Semanas anteriores</summary>";let hp=false;
   Object.keys(weeks).sort().forEach(wk=>{
@@ -453,41 +493,64 @@ function renderMes(){
   $("mes-meta").textContent="Fin de semestre "+shortDate(plan.semester.end);
 }
 
-/* ---------- Asignaturas + Agenda ---------- */
-function renderAsig(){
-  const box=$("subjects");box.innerHTML="";
-  const order=["dibujo","mates","fisica","sistemas"].filter(k=>plan.subjects[k]).concat(Object.keys(plan.subjects).filter(k=>!["dibujo","mates","fisica","sistemas"].includes(k)));
-  order.forEach(k=>{
-    const entries=Object.entries(st.notes).filter(([,n])=>n.s===k&&!n.del).sort((a,b)=>(b[1].d+b[1].c)>(a[1].d+a[1].c)?1:-1);
-    const card=document.createElement("div");card.className="subj";card.style.background="var(--"+k+",var(--soft))";
-    card.innerHTML='<h3>'+esc(subjName(k))+'<small>'+entries.length+' notas</small></h3>'+
-      '<form class="adder" autocomplete="off"><textarea rows="2" placeholder="Qué estáis haciendo: tema, ejercicio, entrega…" aria-label="Nueva nota de '+esc(subjName(k))+'"></textarea><button class="btn" type="submit">Añadir</button></form>';
-    const ul=document.createElement("ul");ul.className="entries";
-    const show=(arr,target)=>arr.forEach(([id,n])=>{const li=document.createElement("li");
-      li.innerHTML='<span class="dt">'+shortDate(n.d)+'</span><span class="tx">'+esc(n.text)+'</span><button class="x" type="button" aria-label="Borrar nota">×</button>';
-      li.querySelector(".x").addEventListener("click",()=>change("notes",id,Object.assign({},n,{del:1})));target.appendChild(li)});
-    show(entries.slice(0,5),ul);card.appendChild(ul);
-    if(entries.length>5){const det=document.createElement("details");det.innerHTML="<summary>Ver "+(entries.length-5)+" más</summary>";const u2=document.createElement("ul");u2.className="entries";u2.style.marginTop="6px";show(entries.slice(5),u2);det.appendChild(u2);card.appendChild(det)}
-    const form=card.querySelector("form"),ta=card.querySelector("textarea");
-    form.addEventListener("submit",e=>{e.preventDefault();const v=ta.value.trim();if(!v)return;change("notes",uid(),{s:k,text:v,d:iso(new Date()),c:new Date().toTimeString().slice(0,5)})});
-    box.appendChild(card);
-  });
-  const items=agendaItems(),pend=items.filter(a=>!a.done).sort((x,y)=>(x.date||"9")<(y.date||"9")?-1:(x.date||"9")>(y.date||"9")?1:(x.c||"")<(y.c||"")?-1:1);
-  const dn=items.filter(a=>a.done).sort((x,y)=>(y.t||0)-(x.t||0));
-  const today=iso(new Date());
-  const mk=(a,ul)=>{const dl=a.date?'<span class="tag">'+(a.date<today&&!a.done?"⚠ ":"")+shortDate(a.date)+'</span>':"";
-    ul.appendChild(taskLi("ag-"+a.id,dl+esc(a.text),"ag",!!a.done,v=>change("agenda",a.id,Object.assign({},st.agenda[a.id],{done:v?1:0})),'<button class="x" type="button" aria-label="Borrar">×</button>'));
-    ul.lastChild.querySelector(".x").addEventListener("click",()=>change("agenda",a.id,Object.assign({},st.agenda[a.id],{del:1})))};
-  const L=$("ag-list");L.innerHTML="";pend.forEach(a=>mk(a,L));if(!pend.length)L.innerHTML='<li class="empty" style="border:0;background:none;padding:2px 0">Nada pendiente.</li>';
-  const D=$("ag-done");D.innerHTML="";dn.forEach(a=>mk(a,D));$("ag-done-wrap").hidden=!dn.length;$("ag-done-sum").textContent="Hechas ("+dn.length+")";
-  $("ag-count").textContent=pend.length+" pendientes";
+/* ---------- Asignaturas ---------- */
+const SUBJ_ORDER=()=>["dibujo","mates","fisica","sistemas"].filter(k=>plan.subjects[k]).concat(Object.keys(plan.subjects).filter(k=>!["dibujo","mates","fisica","sistemas"].includes(k)));
+let asigView=null;
+const notesOf=k=>Object.entries(st.notes).filter(([,n])=>(n.s||"general")===k&&!n.del).map(([id,n])=>Object.assign({id},n));
+const byNewest=(a,b)=>((b.d||"")+(b.c||""))>((a.d||"")+(a.c||""))?1:-1;
+function noteLi(n,ul,prefix){
+  ul.appendChild(taskLi(prefix+"-"+n.id,'<span class="tag">'+shortDate(n.d||iso(new Date()))+'</span>'+esc(n.text),"",!!n.done,
+    v=>change("notes",n.id,Object.assign({},st.notes[n.id],{done:v?1:0})),'<button class="x" type="button" aria-label="Borrar">×</button>'));
+  ul.lastChild.querySelector(".x").addEventListener("click",()=>change("notes",n.id,Object.assign({},st.notes[n.id],{del:1})));
 }
-$("ag-form").addEventListener("submit",e=>{e.preventDefault();const t=$("ag-text").value.trim();if(!t)return;
-  change("agenda",uid(),{text:t,date:$("ag-date").value||"",done:0,c:new Date().toISOString()});$("ag-text").value="";$("ag-date").value=""});
+function renderAsig(){
+  const sel=$("q-subj"),keep=sel.value;sel.innerHTML="";
+  SUBJ_ORDER().concat(["general"]).forEach(k=>{const o=document.createElement("option");o.value=k;o.textContent=k==="general"?"Notas (general)":subjName(k);sel.appendChild(o)});
+  if(keep)sel.value=keep;
+  const today=iso(new Date());
+  const T=$("tiles");T.innerHTML="";
+  SUBJ_ORDER().concat(["general"]).forEach(k=>{
+    const pend=notesOf(k).filter(n=>!n.done).length;
+    const next=k==="general"?null:events().find(e=>e.s===k&&e.date>=today);
+    const b=document.createElement("button");b.type="button";b.className="tile"+(k==="general"?" wide":"");
+    if(k!=="general")b.style.background="var(--"+k+")";
+    b.innerHTML=esc(k==="general"?"Notas":subjName(k))+'<small>'+pend+(pend===1?" nota pendiente":" notas pendientes")+'</small>'+(next?'<small>'+(next.type==="exam"?"Examen":"Entrega")+': '+shortDate(next.date)+'</small>':'');
+    b.addEventListener("click",()=>{asigView=k;renderAsig();window.scrollTo(0,0)});
+    T.appendChild(b);
+  });
+  $("asig-main").hidden=!!asigView;$("asig-detail").hidden=!asigView;
+  if(!asigView)return;
+  const k=asigView,gen=k==="general";
+  $("d-title").textContent=gen?"Notas":subjName(k);
+  $("asig-detail").querySelectorAll(".subj").forEach(x=>{x.style.background=gen?"var(--agenda)":"var(--"+k+")"});
+  $("d-events-box").hidden=gen;
+  const evs=events().filter(e=>e.s===k);
+  $("d-meta").textContent=gen?"Lo que no es de ninguna asignatura":((n=>n+(n===1?" próximo":" próximos"))(evs.filter(e=>e.date>=today).length));
+  const EL=$("ev-list");EL.innerHTML="";
+  if(!evs.length)EL.innerHTML='<li class="empty" style="border:0;background:none;padding:2px 0">Sin exámenes ni entregas.</li>';
+  evs.forEach(e=>{const li=document.createElement("li");li.className=e.type+(e.date<today?" checked":"");
+    li.innerHTML='<label><span class="tag">'+shortDate(e.date)+'</span>'+esc(e.label)+'</label>'+(e.plan?'':'<button class="x" type="button" aria-label="Borrar">×</button>');
+    if(!e.plan)li.querySelector(".x").addEventListener("click",()=>change("events",e.id,Object.assign({},st.events[e.id],{del:1})));
+    EL.appendChild(li)});
+  const ns=notesOf(k),pend=ns.filter(n=>!n.done).sort(byNewest),dn=ns.filter(n=>n.done).sort(byNewest);
+  const L=$("dn-list");L.innerHTML="";pend.forEach(n=>noteLi(n,L,"dn"));
+  if(!pend.length)L.innerHTML='<li class="empty" style="border:0;background:none;padding:2px 0">Nada apuntado todavía.</li>';
+  const D=$("dn-done");D.innerHTML="";dn.forEach(n=>noteLi(n,D,"dd"));
+  $("dn-done-wrap").hidden=!dn.length;$("dn-done-sum").textContent="Hechas ("+dn.length+")";
+}
+const nowC=()=>new Date().toTimeString().slice(0,5);
+$("quick").addEventListener("submit",e=>{e.preventDefault();const t=$("q-text").value.trim();if(!t)return;const k=$("q-subj").value;
+  change("notes",uid(),{s:k,text:t,d:iso(new Date()),c:nowC(),done:0});$("q-text").value="";$("q-msg").textContent="Guardado en "+(k==="general"?"Notas":subjName(k))+"."});
+$("dn-form").addEventListener("submit",e=>{e.preventDefault();const t=$("dn-text").value.trim();if(!t||!asigView)return;
+  change("notes",uid(),{s:asigView,text:t,d:iso(new Date()),c:nowC(),done:0});$("dn-text").value=""});
+$("ev-form").addEventListener("submit",e=>{e.preventDefault();const d=$("ev-date").value;
+  if(!d){$("ev-msg").textContent="Pon la fecha.";return}$("ev-msg").textContent="";
+  change("events",uid(),{s:asigView,type:$("ev-type").value,date:d,label:$("ev-label").value.trim()});$("ev-label").value="";$("ev-date").value=""});
+$("back").addEventListener("click",()=>{asigView=null;renderAsig();window.scrollTo(0,0)});
 
 /* ---------- resto ---------- */
 function renderCount(){const c=$("countdown");c.innerHTML="";const t0=parseIso(iso(new Date()));
-  Object.entries(plan.key_dates).sort().forEach(([s,k])=>{const n=Math.round((parseIso(s)-t0)/864e5);if(n<-3)return;
+  events().forEach(k=>{const s=k.date,n=Math.round((parseIso(s)-t0)/864e5);if(n<-3)return;
     const el=document.createElement("span");el.className="chip "+k.type+(n<0?" done":"");
     el.innerHTML=n<0?esc(k.label)+" ✓":n===0?"<b>HOY</b> "+esc(k.label):"<b>"+n+"</b> "+(n===1?"día":"días")+" · "+esc(k.label);c.appendChild(el)})}
 function renderAjustes(){$("in-repo").value=cfg.repo||"";$("in-token").value=cfg.token?"••••••••":"";$("aj-repo").textContent=cfg.repo||""}
@@ -498,15 +561,16 @@ function summary(){
     s+="\n"+DOW[d.getDay()]+" "+d.getDate()+":\n"+t.map(x=>(isDone(x.id)?"[x] ":"[ ] ")+x.text).join("\n")+"\n"}
   const since=new Date(now);since.setDate(now.getDate()-14);const sinceIso=iso(since);
   s+="\nAsignaturas (últimas 2 semanas):\n";
-  Object.keys(plan.subjects).forEach(k=>{const n=Object.values(st.notes).filter(x=>x.s===k&&!x.del&&x.d>=sinceIso).sort((a,b)=>a.d<b.d?-1:1);
+  Object.keys(plan.subjects).forEach(k=>{const n=Object.values(st.notes).filter(x=>x.s===k&&!x.del&&(x.d>=sinceIso||!x.done)).sort((a,b)=>a.d<b.d?-1:1);
     if(n.length)s+="- "+subjName(k)+":\n"+n.map(x=>"  · "+shortDate(x.d)+": "+x.text).join("\n")+"\n"});
-  const p=agendaItems().filter(a=>!a.done);if(p.length)s+="\nAgenda pendiente:\n"+p.map(a=>"[ ] "+(a.date?shortDate(a.date)+" · ":"")+a.text).join("\n")+"\n";
+  const g=notesOf("general").filter(n=>!n.done);if(g.length)s+="\nNotas pendientes:\n"+g.map(n=>"[ ] "+n.text).join("\n")+"\n";
+  const ev=events().filter(e=>e.date>=iso(now));if(ev.length)s+="\nPróximos exámenes y entregas:\n"+ev.map(e=>shortDate(e.date)+" · "+e.label).join("\n")+"\n";
   return s;
 }
 function renderAll(){if(!plan)return;renderCount();renderHoy();renderSemana();renderMes();renderAsig();renderAjustes()}
 
 const views=["hoy","semana","mes","asig","ajustes"];
-function show(v){if(!views.includes(v))v="hoy";views.forEach(x=>{$("view-"+x).hidden=x!==v});
+function show(v){if(!views.includes(v))v="hoy";$("countdown").hidden=v==="asig";if(v==="asig"&&asigView){asigView=null;if(plan)renderAsig()}views.forEach(x=>{$("view-"+x).hidden=x!==v});
   document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.view===v));window.scrollTo(0,0)}
 document.querySelectorAll("nav.tabs button").forEach(b=>b.addEventListener("click",()=>{show(b.dataset.view);try{history.replaceState(null,"","#"+b.dataset.view)}catch(e){}}));
 $("syncbtn").addEventListener("click",()=>{if(hasToken())syncProgress();else show("ajustes")});

@@ -122,15 +122,18 @@
  "key_dates": {
   "2026-11-09": {
    "type": "deadline",
-   "label": "Entrega Dibujo"
+   "label": "Entrega Dibujo",
+   "s": "dibujo"
   },
   "2026-11-19": {
    "type": "exam",
-   "label": "Examen Física"
+   "label": "Examen Física",
+   "s": "fisica"
   },
   "2026-11-20": {
    "type": "exam",
-   "label": "Examen Mates"
+   "label": "Examen Mates",
+   "s": "mates"
   }
  },
  "sleep_ladder": [
