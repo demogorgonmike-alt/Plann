@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#FFFFFF">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -22,7 +22,9 @@
   --mono:ui-monospace,"SF Mono",Menlo,monospace;
   color-scheme:light;
 }
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+input,select,textarea{font-size:16px!important}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 var(--font)}
 .wrap{max-width:900px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 14px) 16px calc(env(safe-area-inset-bottom) + 90px);display:grid;gap:16px}
 h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.01em}
@@ -590,6 +592,9 @@ setInterval(()=>{if(plan&&!$("view-hoy").hidden)renderHoy()},60000);
   if(!plan){document.querySelector(".wrap").insertAdjacentHTML("beforeend",'<p class="note">No se ha podido cargar el plan. Revisa la conexión y vuelve a abrir la app.</p>');return}
   if(ok)renderAll();show(location.hash.slice(1));syncProgress();
 })();
+["gesturestart","gesturechange","gestureend"].forEach(ev=>document.addEventListener(ev,e=>e.preventDefault(),{passive:false}));
+document.addEventListener("touchmove",e=>{if(e.touches&&e.touches.length>1)e.preventDefault()},{passive:false});
+let lastTouch=0;document.addEventListener("touchend",e=>{const n=Date.now();if(n-lastTouch<300&&!e.target.closest("input,textarea,select,label,button"))e.preventDefault();lastTouch=n},{passive:false});
 if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}
 })();
 </script>
