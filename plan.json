@@ -1,0 +1,450 @@
+{
+ "_info": "Plan de Joan. Lo edita Claude cuando Joan se lo pide. Ver README.md.",
+ "updated": "2026-11-02",
+ "group": 2,
+ "semester": {
+  "start": "2026-09-09",
+  "end": "2026-12-22"
+ },
+ "subjects": {
+  "dibujo": "Dibujo Arquitectónico",
+  "mates": "Matemáticas",
+  "fisica": "Física I",
+  "sistemas": "Sistemas de Representación"
+ },
+ "classes": {
+  "1": [
+   [
+    "mates",
+    "08:30",
+    "10:30"
+   ],
+   [
+    "fisica",
+    "10:40",
+    "11:50"
+   ],
+   [
+    "dibujo",
+    "12:00",
+    "14:00"
+   ]
+  ],
+  "2": [
+   [
+    "sistemas",
+    "08:30",
+    "11:00"
+   ],
+   [
+    "mates",
+    "11:10",
+    "12:40"
+   ],
+   [
+    "fisica",
+    "12:50",
+    "14:00"
+   ]
+  ],
+  "3": [
+   [
+    "fisica",
+    "08:30",
+    "09:40"
+   ],
+   [
+    "mates",
+    "09:50",
+    "11:50"
+   ],
+   [
+    "dibujo",
+    "12:00",
+    "14:30"
+   ]
+  ],
+  "4": [
+   [
+    "sistemas",
+    "08:30",
+    "11:00"
+   ],
+   [
+    "fisica",
+    "11:10",
+    "12:40"
+   ]
+  ],
+  "5": [
+   [
+    "mates",
+    "09:20",
+    "11:20"
+   ],
+   [
+    "dibujo",
+    "11:30",
+    "14:30"
+   ]
+  ]
+ },
+ "routine": {
+  "wake": "06:30",
+  "run_evening_weekdays": [
+   2,
+   4
+  ],
+  "run_evening": "19:00",
+  "run_saturday": "08:00",
+  "weekly_planning": "18:00"
+ },
+ "lab_dates": [
+  "2026-11-10",
+  "2026-11-11",
+  "2026-11-24",
+  "2026-11-25",
+  "2026-12-15",
+  "2026-12-16"
+ ],
+ "key_dates": {
+  "2026-11-09": {
+   "type": "deadline",
+   "label": "Entrega Dibujo"
+  },
+  "2026-11-19": {
+   "type": "exam",
+   "label": "Examen Física"
+  },
+  "2026-11-20": {
+   "type": "exam",
+   "label": "Examen Mates"
+  }
+ },
+ "sleep_ladder": [
+  [
+   "2026-11-02",
+   "2026-11-04",
+   "00:30"
+  ],
+  [
+   "2026-11-05",
+   "2026-11-07",
+   "00:00"
+  ],
+  [
+   "2026-11-08",
+   "2026-11-10",
+   "23:30"
+  ],
+  [
+   "2026-11-11",
+   "2026-11-13",
+   "23:00"
+  ],
+  [
+   "2026-11-14",
+   "2026-11-16",
+   "22:45"
+  ],
+  [
+   "2026-11-17",
+   null,
+   "22:30"
+  ]
+ ],
+ "tasks": {
+  "2026-11-02": [
+   {
+    "id": "261102a",
+    "text": "Dibujo: leer el enunciado de la entrega y apuntar qué hay que entregar (láminas, formato, escala, material)",
+    "type": ""
+   },
+   {
+    "id": "261102b",
+    "text": "Apuntar qué temas entran en Física y en Mates",
+    "type": ""
+   }
+  ],
+  "2026-11-03": [
+   {
+    "id": "261103a",
+    "text": "Dibujo: encajar a lápiz todas las láminas, que todo quede empezado",
+    "type": ""
+   },
+   {
+    "id": "261103b",
+    "text": "Mates: 1 bloque con el primer tema de la lista",
+    "type": ""
+   }
+  ],
+  "2026-11-04": [
+   {
+    "id": "261104a",
+    "text": "Dibujo: delinear la primera mitad",
+    "type": ""
+   },
+   {
+    "id": "261104b",
+    "text": "Física: 1 bloque con el primer tema de la lista",
+    "type": ""
+   }
+  ],
+  "2026-11-05": [
+   {
+    "id": "261105a",
+    "text": "Dibujo: delinear la segunda mitad",
+    "type": ""
+   },
+   {
+    "id": "261105b",
+    "text": "Mates: 1 bloque, siguiente tema",
+    "type": ""
+   }
+  ],
+  "2026-11-06": [
+   {
+    "id": "261106a",
+    "text": "Dibujo: rotulación, cotas y detalles",
+    "type": ""
+   },
+   {
+    "id": "261106b",
+    "text": "Física: 1 bloque, siguiente tema",
+    "type": ""
+   }
+  ],
+  "2026-11-07": [
+   {
+    "id": "261107a",
+    "text": "Dibujo: TERMINAR la entrega. La meta real es hoy, no el domingo",
+    "type": ""
+   },
+   {
+    "id": "261107b",
+    "text": "Correr por la mañana",
+    "type": ""
+   }
+  ],
+  "2026-11-08": [
+   {
+    "id": "261108a",
+    "text": "Dibujo: revisión final y dejarlo todo listo en la mochila",
+    "type": ""
+   },
+   {
+    "id": "261108b",
+    "text": "Planificación semanal (18:00, 30 min)",
+    "type": ""
+   }
+  ],
+  "2026-11-09": [
+   {
+    "id": "261109a",
+    "text": "ENTREGA DE DIBUJO",
+    "type": "deadline"
+   },
+   {
+    "id": "261109b",
+    "text": "Física y Mates: marcar cada tema en verde, amarillo o rojo",
+    "type": ""
+   },
+   {
+    "id": "261109c",
+    "text": "Conseguir exámenes de otros años (campus virtual, delegados, compañeros)",
+    "type": ""
+   }
+  ],
+  "2026-11-10": [
+   {
+    "id": "261110a",
+    "text": "Posible práctica de Física 15–21 h (semana 10, confirma tu turno)",
+    "type": "lab"
+   },
+   {
+    "id": "261110b",
+    "text": "Física: temas en rojo, 1–2 bloques",
+    "type": ""
+   }
+  ],
+  "2026-11-11": [
+   {
+    "id": "261111a",
+    "text": "Posible práctica de Física 15–21 h (semana 10, confirma tu turno)",
+    "type": "lab"
+   },
+   {
+    "id": "261111b",
+    "text": "Mates: temas en rojo, 1–2 bloques",
+    "type": ""
+   }
+  ],
+  "2026-11-12": [
+   {
+    "id": "261112a",
+    "text": "Física: problemas tipo de cada tema",
+    "type": ""
+   },
+   {
+    "id": "261112b",
+    "text": "Mates: 1 bloque de ejercicios",
+    "type": ""
+   }
+  ],
+  "2026-11-13": [
+   {
+    "id": "261113a",
+    "text": "Mates: problemas tipo de cada tema",
+    "type": ""
+   },
+   {
+    "id": "261113b",
+    "text": "Física: 1 bloque de ejercicios",
+    "type": ""
+   }
+  ],
+  "2026-11-14": [
+   {
+    "id": "261114a",
+    "text": "Física: hacer la chuleta de fórmulas",
+    "type": ""
+   },
+   {
+    "id": "261114b",
+    "text": "Correr por la mañana",
+    "type": ""
+   }
+  ],
+  "2026-11-15": [
+   {
+    "id": "261115a",
+    "text": "Mates: hacer la chuleta de fórmulas",
+    "type": ""
+   },
+   {
+    "id": "261115b",
+    "text": "Planificación semanal (18:00, 30 min)",
+    "type": ""
+   }
+  ],
+  "2026-11-16": [
+   {
+    "id": "261116a",
+    "text": "Simulacro de Física: examen de otro año, cronometrado",
+    "type": ""
+   },
+   {
+    "id": "261116b",
+    "text": "Corregirlo y apuntar los errores",
+    "type": ""
+   }
+  ],
+  "2026-11-17": [
+   {
+    "id": "261117a",
+    "text": "Simulacro de Mates: examen de otro año, cronometrado",
+    "type": ""
+   },
+   {
+    "id": "261117b",
+    "text": "Corregirlo y apuntar los errores",
+    "type": ""
+   }
+  ],
+  "2026-11-18": [
+   {
+    "id": "261118a",
+    "text": "Física: repasar los errores del simulacro y la chuleta",
+    "type": ""
+   },
+   {
+    "id": "261118b",
+    "text": "Mates: 1 bloque suave",
+    "type": ""
+   },
+   {
+    "id": "261118c",
+    "text": "Nada de estudiar después de las 21:00",
+    "type": ""
+   }
+  ],
+  "2026-11-19": [
+   {
+    "id": "261119a",
+    "text": "EXAMEN DE FÍSICA",
+    "type": "exam"
+   },
+   {
+    "id": "261119b",
+    "text": "Tarde: Mates, solo chuleta y errores (máx. 2 bloques)",
+    "type": ""
+   },
+   {
+    "id": "261119c",
+    "text": "Correr suave, 20 min",
+    "type": ""
+   }
+  ],
+  "2026-11-20": [
+   {
+    "id": "261120a",
+    "text": "EXAMEN DE MATES",
+    "type": "exam"
+   },
+   {
+    "id": "261120b",
+    "text": "Tarde libre: te lo has ganado",
+    "type": ""
+   }
+  ],
+  "2026-11-21": [
+   {
+    "id": "261121a",
+    "text": "Descanso de verdad. Correr por la mañana",
+    "type": ""
+   }
+  ],
+  "2026-11-22": [
+   {
+    "id": "261122a",
+    "text": "Planificación semanal: ponerse al día con Dibujo y Sistemas",
+    "type": ""
+   }
+  ],
+  "2026-11-24": [
+   {
+    "id": "261124a",
+    "text": "Posible práctica de Física 15–21 h (semana 12)",
+    "type": "lab"
+   }
+  ],
+  "2026-11-25": [
+   {
+    "id": "261125a",
+    "text": "Posible práctica de Física 15–21 h (semana 12)",
+    "type": "lab"
+   }
+  ],
+  "2026-12-15": [
+   {
+    "id": "261215a",
+    "text": "Posible práctica de Física 15–21 h (semana 15)",
+    "type": "lab"
+   }
+  ],
+  "2026-12-16": [
+   {
+    "id": "261216a",
+    "text": "Posible práctica de Física 15–21 h (semana 15)",
+    "type": "lab"
+   }
+  ],
+  "2026-12-22": [
+   {
+    "id": "261222a",
+    "text": "Último día de clase del semestre",
+    "type": ""
+   }
+  ]
+ }
+}
