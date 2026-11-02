@@ -222,6 +222,12 @@ label.f{display:grid;gap:4px;font-size:14px;font-weight:500}
       <p class="msg" id="aj-msg"></p>
     </div>
     <div class="card">
+      <h3 style="margin:0">Versión de la app</h3>
+      <p class="msg">Tienes la versión <b id="app-ver"></b>. Si has subido archivos nuevos y no ves los cambios, pulsa aquí.</p>
+      <div class="row"><button type="button" class="btn ghost" id="btn-update">Forzar actualización</button></div>
+      <p class="msg" id="upd-msg"></p>
+    </div>
+    <div class="card">
       <h3 style="margin:0">Hablar con Claude</h3>
       <p class="msg">Copia el resumen (tareas de la semana, notas y exámenes) y pégalo en el chat para que te ayude a reorganizarte.</p>
       <div class="row">
@@ -244,6 +250,7 @@ label.f{display:grid;gap:4px;font-size:14px;font-weight:500}
 <script>
 (function(){
 "use strict";
+const APP_VERSION="6";
 const LS={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},
           set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 const $=id=>document.getElementById(id);
@@ -576,7 +583,7 @@ function renderCount(){const c=$("countdown");c.innerHTML="";const t0=parseIso(i
   events().forEach(k=>{const s=k.date,n=Math.round((parseIso(s)-t0)/864e5);if(n<-3)return;
     const el=document.createElement("span");el.className="chip "+k.type+(n<0?" done":"");
     el.innerHTML=n<0?esc(k.label)+" ✓":n===0?"<b>HOY</b> "+esc(k.label):"<b>"+n+"</b> "+(n===1?"día":"días")+" · "+esc(k.label);c.appendChild(el)})}
-function renderAjustes(){$("in-repo").value=cfg.repo||"";$("in-token").value=cfg.token?"••••••••":"";$("aj-repo").textContent=cfg.repo||""}
+function renderAjustes(){$("app-ver").textContent=APP_VERSION;$("in-repo").value=cfg.repo||"";$("in-token").value=cfg.token?"••••••••":"";$("aj-repo").textContent=cfg.repo||""}
 function summary(){
   const now=new Date(),mon=new Date(now);mon.setDate(now.getDate()-((now.getDay()+6)%7));
   let s="Mi plan · semana del "+mon.getDate()+" de "+MON[mon.getMonth()]+"\n";
@@ -603,6 +610,12 @@ $("btn-save").addEventListener("click",async()=>{
   try{await gh("progress.json");$("aj-msg").textContent="Conectado. Ya se sincroniza con tu repositorio.";await loadPlan();renderAll();syncProgress()}
   catch(e){$("aj-msg").textContent=e.status===401||e.status===403?"La clave no funciona o no tiene permiso de escritura (Contents: Read and write).":e.status===404?"No encuentro el repositorio o la clave no tiene acceso a él.":"No hay conexión. Prueba otra vez."}});
 $("btn-forget").addEventListener("click",()=>{cfg.token="";LS.set("plan.cfg",cfg);renderAjustes();setSync("","Sin configurar");$("aj-msg").textContent="Clave borrada de este móvil."});
+$("btn-update").addEventListener("click",async()=>{
+  $("upd-msg").textContent="Actualizando…";
+  try{if(navigator.serviceWorker){const rs=await navigator.serviceWorker.getRegistrations();await Promise.all(rs.map(r=>r.unregister()))}
+      if(window.caches){const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)))}}catch(e){}
+  location.replace(location.pathname+"?v="+Date.now()+location.hash);
+});
 $("btn-copy").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(summary());$("copy-msg").textContent="Copiado. Pégalo en el chat con Claude."}catch(e){$("copy-msg").textContent="No se pudo copiar automáticamente."}});
 window.addEventListener("online",syncProgress);
 document.addEventListener("visibilitychange",async()=>{if(document.visibilityState==="visible"){if(await loadPlan())renderAll();syncProgress()}});
@@ -616,7 +629,7 @@ setInterval(()=>{if(plan&&!$("view-hoy").hidden)renderHoy()},60000);
 ["gesturestart","gesturechange","gestureend"].forEach(ev=>document.addEventListener(ev,e=>e.preventDefault(),{passive:false}));
 document.addEventListener("touchmove",e=>{if(e.touches&&e.touches.length>1)e.preventDefault()},{passive:false});
 let lastTouch=0;document.addEventListener("touchend",e=>{const n=Date.now();if(n-lastTouch<300&&!e.target.closest("input,textarea,select,label,button"))e.preventDefault();lastTouch=n},{passive:false});
-if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}
+if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>r.update()).catch(()=>{})})}
 })();
 </script>
 </body>
