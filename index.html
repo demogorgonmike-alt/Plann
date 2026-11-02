@@ -102,13 +102,16 @@ details summary{cursor:pointer;color:var(--muted);font-size:14px;padding:4px 0}
 .subj h3{margin:0;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .subj h3 small{font:400 12px var(--mono);color:var(--muted)}
 .adder{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;min-width:0}
-#quick #q-text,#ev-form #ev-label{flex:1 1 100%}
+#quick #q-text,#quick #q-desc,#ev-form #ev-label{flex:1 1 100%}
+.nt{display:block;font-weight:500}
+.nd{display:block;font-size:13px;color:var(--muted);margin-top:1px;white-space:pre-wrap}
+.tasks li.checked .nd{text-decoration:line-through}
 .adder select{font:15px var(--font);padding:8px 10px;border:1px solid rgba(0,0,0,.12);border-radius:10px;background:#fff;color:var(--ink);flex:1 1 auto;min-width:0}
 #ev-form #ev-date{flex:1 1 auto;min-width:0}
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .tile{border:0;border-radius:14px;padding:16px 14px;text-align:left;font:600 17px var(--font);color:var(--ink);cursor:pointer;display:grid;gap:6px;align-content:start;min-height:96px}
 .tile small{font:400 13px var(--font);color:#555}
-.tile.wide{grid-column:1/-1;background:var(--agenda);min-height:70px}
+.stag{display:inline-block;font:600 11px var(--font);padding:1px 7px;border-radius:999px;margin-right:6px;vertical-align:1px;background:var(--agenda)}
 .back{border:0;background:none;font:600 15px var(--font);color:var(--ink);padding:4px 0;cursor:pointer;justify-self:start}
 .wrap>*,section>*,.subj,#subjects{min-width:0}
 html,body{overflow-x:hidden}
@@ -143,13 +146,9 @@ label.f{display:grid;gap:4px;font-size:14px;font-weight:500}
 
   <section id="view-hoy">
     <div class="head"><h2 id="hoy-title">Hoy</h2><span id="hoy-meta"></span></div>
-    <div class="cols">
-      <div style="display:grid;gap:16px;align-content:start">
-        <div><h3>Lo que toca hoy</h3><ul class="tasks" id="hoy-tasks"></ul></div>
-        <div class="dark" id="hoy-sleep"></div>
-      </div>
-      <div><h3>Tu día, hora a hora</h3><ul class="timeline" id="hoy-timeline"></ul></div>
-    </div>
+    <div><h3>Tu día, hora a hora</h3><ul class="timeline" id="hoy-timeline"></ul></div>
+    <div><h3>Lo que toca hoy</h3><ul class="tasks" id="hoy-tasks"></ul></div>
+    <div class="dark" id="hoy-sleep"></div>
   </section>
 
   <section id="view-semana" hidden>
@@ -172,19 +171,25 @@ label.f{display:grid;gap:4px;font-size:14px;font-weight:500}
 
   <section id="view-asig" hidden>
     <div id="asig-main" style="display:grid;gap:18px">
-      <div class="head"><h2>Asignaturas</h2><span>Apunta lo que sea</span></div>
+      <div class="head"><h2>Notas</h2><span id="n-count"></span></div>
       <div class="subj" style="background:var(--soft)">
         <form class="adder" id="quick" autocomplete="off">
-          <input type="text" id="q-text" placeholder="Tema 4 de derivadas, comprar láminas A3…" aria-label="Nueva nota">
+          <input type="text" id="q-text" placeholder="Título: Tema 4, comprar láminas A3…" aria-label="Título de la nota">
+          <input type="text" id="q-desc" placeholder="Descripción (opcional)" aria-label="Descripción de la nota">
           <select id="q-subj" aria-label="Asignatura"></select>
           <button class="btn" type="submit">Añadir</button>
         </form>
-        <p class="msg" id="q-msg"></p>
+        <p class="msg" id="q-msg" style="color:var(--muted)"></p>
       </div>
+      <div style="display:grid;gap:6px">
+        <ul class="tasks" id="all-notes"></ul>
+        <details id="all-done-wrap"><summary id="all-done-sum">Hechas</summary><ul class="tasks" id="all-done" style="margin-top:6px"></ul></details>
+      </div>
+      <h3 style="margin:4px 0 0">Asignaturas</h3>
       <div class="tiles" id="tiles"></div>
     </div>
     <div id="asig-detail" style="display:grid;gap:16px" hidden>
-      <button type="button" class="back" id="back">← Asignaturas</button>
+      <button type="button" class="back" id="back">← Notas</button>
       <div class="head"><h2 id="d-title"></h2><span id="d-meta"></span></div>
       <div class="subj" id="d-events-box">
         <h3>Exámenes y entregas</h3>
@@ -198,11 +203,7 @@ label.f{display:grid;gap:4px;font-size:14px;font-weight:500}
         <ul class="tasks" id="ev-list"></ul>
       </div>
       <div class="subj" id="d-notes-box">
-        <h3>Notas</h3>
-        <form class="adder" id="dn-form" autocomplete="off">
-          <textarea rows="2" id="dn-text" placeholder="Qué estáis haciendo: tema, ejercicio, entrega…" aria-label="Nueva nota"></textarea>
-          <button class="btn" type="submit">Añadir</button>
-        </form>
+        <h3>Registro de notas</h3>
         <ul class="tasks" id="dn-list"></ul>
         <details id="dn-done-wrap"><summary id="dn-done-sum">Hechas</summary><ul class="tasks" id="dn-done" style="margin-top:6px"></ul></details>
       </div>
@@ -243,14 +244,14 @@ label.f{display:grid;gap:4px;font-size:14px;font-weight:500}
   <button type="button" role="tab" data-view="hoy" aria-selected="true">Hoy</button>
   <button type="button" role="tab" data-view="semana" aria-selected="false">Semana</button>
   <button type="button" role="tab" data-view="mes" aria-selected="false">Calendario</button>
-  <button type="button" role="tab" data-view="asig" aria-selected="false">Asignaturas</button>
+  <button type="button" role="tab" data-view="asig" aria-selected="false">Notas</button>
   <button type="button" role="tab" data-view="ajustes" aria-selected="false">Ajustes</button>
 </nav>
 
 <script>
 (function(){
 "use strict";
-const APP_VERSION="8";
+const APP_VERSION="11";
 const LS={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},
           set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 const $=id=>document.getElementById(id);
@@ -328,7 +329,7 @@ function sleepTarget(d){const L=plan.sleep_ladder;for(const [a,b,t] of L){if(d>=
 const nextIso=s=>{const d=parseIso(s);d.setDate(d.getDate()+1);return iso(d)};
 const prevWeekday=dow=>dow===1?5:dow-1;
 const subjName=s=>s==="general"?"Notas":(plan.subjects[s]||s);
-const SHORT={dibujo:"Dibujo",mates:"Mates",fisica:"Física",sistemas:"Sistemas",general:"Notas"};
+const SHORT={dibujo:"Dibujo",mates:"Mates",fisica:"Física",sistemas:"Sistemas",general:"General"};
 const shortName=s=>SHORT[s]||subjName(s);
 // Exámenes y entregas: los del plan + los que creas desde Asignaturas
 function events(){
@@ -539,34 +540,43 @@ const SUBJ_ORDER=()=>["dibujo","mates","fisica","sistemas"].filter(k=>plan.subje
 let asigView=null;
 const notesOf=k=>Object.entries(st.notes).filter(([,n])=>(n.s||"general")===k&&!n.del).map(([id,n])=>Object.assign({id},n));
 const byNewest=(a,b)=>((b.d||"")+(b.c||""))>((a.d||"")+(a.c||""))?1:-1;
-function noteLi(n,ul,prefix){
-  ul.appendChild(taskLi(prefix+"-"+n.id,'<span class="tag">'+shortDate(n.d||iso(new Date()))+'</span>'+esc(n.text),"",!!n.done,
+function noteLi(n,ul,prefix,withSubj){
+  const k=n.s||"general",chip=withSubj?'<span class="stag" style="background:var(--'+(k==="general"?"agenda":k)+')">'+esc(shortName(k))+'</span>':"";
+  ul.appendChild(taskLi(prefix+"-"+n.id,'<span class="nt">'+chip+esc(n.text)+'</span>'+(n.desc?'<span class="nd">'+esc(n.desc)+'</span>':''),"",!!n.done,
     v=>change("notes",n.id,Object.assign({},st.notes[n.id],{done:v?1:0})),'<button class="x" type="button" aria-label="Borrar">×</button>'));
   ul.lastChild.querySelector(".x").addEventListener("click",()=>change("notes",n.id,Object.assign({},st.notes[n.id],{del:1})));
 }
 function renderAsig(){
   const sel=$("q-subj"),keep=sel.value;sel.innerHTML="";
-  SUBJ_ORDER().concat(["general"]).forEach(k=>{const o=document.createElement("option");o.value=k;o.textContent=k==="general"?"Notas (general)":subjName(k);sel.appendChild(o)});
+  ["general"].concat(SUBJ_ORDER()).forEach(k=>{const o=document.createElement("option");o.value=k;o.textContent=k==="general"?"General":subjName(k);sel.appendChild(o)});
   if(keep)sel.value=keep;
   const today=iso(new Date());
+  // todas las notas, justo debajo de la caja de añadir
+  const all=notesOf("general");
+  const ap=all.filter(n=>!n.done).sort(byNewest),ad=all.filter(n=>n.done).sort(byNewest);
+  const AL=$("all-notes");AL.innerHTML="";ap.forEach(n=>noteLi(n,AL,"an",false));
+  if(!ap.length)AL.innerHTML='<li class="empty" style="border:0;background:none;padding:2px 0">Nada pendiente.</li>';
+  const AD=$("all-done");AD.innerHTML="";ad.forEach(n=>noteLi(n,AD,"ad",false));
+  $("all-done-wrap").hidden=!ad.length;$("all-done-sum").textContent="Hechas ("+ad.length+")";
+  $("n-count").textContent=ap.length+(ap.length===1?" pendiente":" pendientes");
+  // botones de asignaturas
   const T=$("tiles");T.innerHTML="";
-  SUBJ_ORDER().concat(["general"]).forEach(k=>{
+  SUBJ_ORDER().forEach(k=>{
     const pend=notesOf(k).filter(n=>!n.done).length;
-    const next=k==="general"?null:events().find(e=>e.s===k&&e.date>=today);
-    const b=document.createElement("button");b.type="button";b.className="tile"+(k==="general"?" wide":"");
-    if(k!=="general")b.style.background="var(--"+k+")";
-    b.innerHTML=esc(k==="general"?"Notas":subjName(k))+'<small>'+pend+(pend===1?" nota pendiente":" notas pendientes")+'</small>'+(next?'<small>'+(next.type==="exam"?"Examen":"Entrega")+': '+shortDate(next.date)+'</small>':'');
+    const next=events().find(e=>e.s===k&&e.date>=today);
+    const b=document.createElement("button");b.type="button";b.className="tile";b.style.background="var(--"+k+")";
+    b.innerHTML=esc(subjName(k))+'<small>'+pend+(pend===1?" nota pendiente":" notas pendientes")+'</small>'+(next?'<small>'+(next.type==="exam"?"Examen":"Entrega")+': '+shortDate(next.date)+'</small>':'');
     b.addEventListener("click",()=>{asigView=k;renderAsig();window.scrollTo(0,0)});
     T.appendChild(b);
   });
+  if(asigView==="general")asigView=null;
   $("asig-main").hidden=!!asigView;$("asig-detail").hidden=!asigView;
   if(!asigView)return;
-  const k=asigView,gen=k==="general";
-  $("d-title").textContent=gen?"Notas":subjName(k);
-  $("asig-detail").querySelectorAll(".subj").forEach(x=>{x.style.background=gen?"var(--agenda)":"var(--"+k+")"});
-  $("d-events-box").hidden=gen;
+  const k=asigView;
+  $("d-title").textContent=subjName(k);
+  $("asig-detail").querySelectorAll(".subj").forEach(x=>{x.style.background="var(--"+k+")"});
   const evs=events().filter(e=>e.s===k);
-  $("d-meta").textContent=gen?"Lo que no es de ninguna asignatura":((n=>n+(n===1?" próximo":" próximos"))(evs.filter(e=>e.date>=today).length));
+  $("d-meta").textContent=((n=>n+(n===1?" próximo":" próximos"))(evs.filter(e=>e.date>=today).length));
   const EL=$("ev-list");EL.innerHTML="";
   if(!evs.length)EL.innerHTML='<li class="empty" style="border:0;background:none;padding:2px 0">Sin exámenes ni entregas.</li>';
   evs.forEach(e=>{const li=document.createElement("li");li.className=e.type+(e.date<today?" checked":"");
@@ -574,16 +584,16 @@ function renderAsig(){
     if(!e.plan)li.querySelector(".x").addEventListener("click",()=>change("events",e.id,Object.assign({},st.events[e.id],{del:1})));
     EL.appendChild(li)});
   const ns=notesOf(k),pend=ns.filter(n=>!n.done).sort(byNewest),dn=ns.filter(n=>n.done).sort(byNewest);
-  const L=$("dn-list");L.innerHTML="";pend.forEach(n=>noteLi(n,L,"dn"));
-  if(!pend.length)L.innerHTML='<li class="empty" style="border:0;background:none;padding:2px 0">Nada apuntado todavía.</li>';
-  const D=$("dn-done");D.innerHTML="";dn.forEach(n=>noteLi(n,D,"dd"));
+  const L=$("dn-list");L.innerHTML="";pend.forEach(n=>noteLi(n,L,"dn",false));
+  if(!pend.length)L.innerHTML='<li class="empty" style="border:0;background:none;padding:2px 0">Sin notas de '+esc(subjName(k))+'. Añádelas desde la caja de Notas.</li>';
+  const D=$("dn-done");D.innerHTML="";dn.forEach(n=>noteLi(n,D,"dd",false));
   $("dn-done-wrap").hidden=!dn.length;$("dn-done-sum").textContent="Hechas ("+dn.length+")";
 }
 const nowC=()=>new Date().toTimeString().slice(0,5);
 $("quick").addEventListener("submit",e=>{e.preventDefault();const t=$("q-text").value.trim();if(!t)return;const k=$("q-subj").value;
-  change("notes",uid(),{s:k,text:t,d:iso(new Date()),c:nowC(),done:0});$("q-text").value="";$("q-msg").textContent="Guardado en "+(k==="general"?"Notas":subjName(k))+"."});
-$("dn-form").addEventListener("submit",e=>{e.preventDefault();const t=$("dn-text").value.trim();if(!t||!asigView)return;
-  change("notes",uid(),{s:asigView,text:t,d:iso(new Date()),c:nowC(),done:0});$("dn-text").value=""});
+  const ds=$("q-desc").value.trim();
+  change("notes",uid(),{s:k,text:t,desc:ds,d:iso(new Date()),c:nowC(),done:0});$("q-text").value="";$("q-desc").value="";
+  $("q-msg").textContent=k==="general"?"":"Guardado en "+subjName(k)+".";clearTimeout(window.__qm);window.__qm=setTimeout(()=>{$("q-msg").textContent=""},3000)});
 $("ev-form").addEventListener("submit",e=>{e.preventDefault();const d=$("ev-date").value;
   if(!d){$("ev-msg").textContent="Pon la fecha.";return}$("ev-msg").textContent="";
   change("events",uid(),{s:asigView,type:$("ev-type").value,date:d,label:$("ev-label").value.trim()});$("ev-label").value="";$("ev-date").value=""});
@@ -603,8 +613,8 @@ function summary(){
   const since=new Date(now);since.setDate(now.getDate()-14);const sinceIso=iso(since);
   s+="\nAsignaturas (últimas 2 semanas):\n";
   Object.keys(plan.subjects).forEach(k=>{const n=Object.values(st.notes).filter(x=>x.s===k&&!x.del&&(x.d>=sinceIso||!x.done)).sort((a,b)=>a.d<b.d?-1:1);
-    if(n.length)s+="- "+subjName(k)+":\n"+n.map(x=>"  · "+shortDate(x.d)+": "+x.text).join("\n")+"\n"});
-  const g=notesOf("general").filter(n=>!n.done);if(g.length)s+="\nNotas pendientes:\n"+g.map(n=>"[ ] "+n.text).join("\n")+"\n";
+    if(n.length)s+="- "+subjName(k)+":\n"+n.map(x=>"  · "+x.text+(x.desc?" — "+x.desc:"")).join("\n")+"\n"});
+  const g=notesOf("general").filter(n=>!n.done);if(g.length)s+="\nNotas pendientes:\n"+g.map(n=>"[ ] "+n.text+(n.desc?" — "+n.desc:"")).join("\n")+"\n";
   const ev=events().filter(e=>e.date>=iso(now));if(ev.length)s+="\nPróximos exámenes y entregas:\n"+ev.map(e=>shortDate(e.date)+" · "+e.label).join("\n")+"\n";
   return s;
 }

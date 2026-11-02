@@ -38,7 +38,7 @@ Cuando Joan pida cambios ("mueve lo de Física al jueves", "añade la entrega de
 
 En `progress.json` (lo escribe la app; si lo editas, respeta el formato y pon `t` = hora actual en ms):
 
-- `notes[id] = {"s": "dibujo"|"mates"|"fisica"|"sistemas"|"general", "text": "...", "d": "AAAA-MM-DD", "c": "HH:MM", "done": 0|1, "t": ms, "del": 0|1}`: lo que apunta en cada asignatura; `general` = apartado Notas.
+- `notes[id] = {"s": "dibujo"|"mates"|"fisica"|"sistemas"|"general", "text": "título", "desc": "descripción opcional", "d": "AAAA-MM-DD", "c": "HH:MM", "done": 0|1, "t": ms, "del": 0|1}`: lo que apunta en cada asignatura; `general` = apartado Notas.
 - `events[id] = {"s": "mates", "type": "exam"|"deadline", "date": "AAAA-MM-DD", "label": "" o nombre, "t": ms, "del": 0|1}`: exámenes y entregas que Joan crea desde la app. Salen en la cuenta atrás, el calendario y Hoy, igual que `plan.json → key_dates`.
 - `agenda` es el formato antiguo; la app lo convierte en notas `general`.
 - Los borrados se marcan con `del: 1`; no elimines claves, para que la sincronización no las resucite.
