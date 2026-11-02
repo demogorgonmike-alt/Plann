@@ -50,6 +50,9 @@ section{display:grid;gap:18px}
 .timeline,.tasks{list-style:none;margin:0;padding:0;display:grid;gap:6px}
 .timeline li{display:grid;grid-template-columns:96px 1fr;gap:10px;padding:9px 12px;border-radius:12px;background:var(--soft)}
 .timeline .t{font:13px var(--mono);padding-top:2px}
+.timeline li.cls{align-content:start}
+.timeline li.cls .what{font-weight:600}
+.timeline li.cls .sub{color:#333;margin-top:2px}
 .timeline .what{font-weight:500}
 .timeline .sub{display:block;font-size:13px;color:var(--muted);font-weight:400}
 .timeline li.now{outline:2px solid var(--ink);outline-offset:2px}
@@ -348,7 +351,11 @@ function buildDay(dow,d){
         add(arrive,first-10,"k-biblio","Biblio · repaso rápido",prev.length?"Repasa lo de "+DOW[prevWeekday(dow)].toLowerCase()+": "+[...new Set(prev)].join(", "):"");
       }else add(arrive,first,"","Llegada","Margen hasta clase");
       const evs=d?eventsOn(d):[];
-      cls.forEach(([s,a,b])=>{const e=evs.find(x=>x.s===s);add(a,b,"k-"+s,subjName(s),e?(e.type==="exam"?"Hoy: ":"Entrega hoy: ")+e.label+". Comprueba hora y aula":"")});
+      cls.forEach(([s,a,b])=>{
+        const e=evs.find(x=>x.s===s);
+        const nx=d&&!e?events().find(x=>x.s===s&&x.date>d):null;
+        const nd=nx?Math.round((parseIso(nx.date)-parseIso(d))/864e5):0;
+        add(a,b,"k-"+s+" cls",subjName(s),e?"HOY: "+e.label+". Comprueba hora y aula":nx?(nx.type==="exam"?"Examen":"Entrega")+" el "+shortDate(nx.date)+" · en "+nd+(nd===1?" día":" días"):"")});
       last=toMin(cls[cls.length-1][2]);
     }
     const lunchEnd=last+R.lunch_min;
@@ -439,6 +446,7 @@ function renderHoy(){
   const ul=$("hoy-timeline");ul.innerHTML="";
   buildDay(dow,today).forEach(([a,b,c,t,s])=>{const li=document.createElement("li"),cur=nowMin>=a&&nowMin<b;
     li.className=c+(cur?" now":nowMin>=b?" past":"");
+    if(/\bcls\b/.test(c))li.style.minHeight=Math.round((b-a)*0.9)+"px";
     li.innerHTML='<span class="t">'+fmt(a)+'–'+fmt(b)+'</span><span class="what">'+esc(t)+(cur?'<span class="nowtag">AHORA · quedan '+(b-nowMin)+' min</span>':'')+(s?'<span class="sub">'+esc(s)+'</span>':'')+'</span>';ul.appendChild(li)});
   const tl=$("hoy-tasks");renderTaskList(tl,today,true,"h");
   $("hoy-sleep").innerHTML="<b>Esta noche:</b> cena a las "+plan.routine.dinner+", luz apagada a las <b>"+sleepTarget(today)+"</b>, despertador a las "+plan.routine.wake+".";
@@ -447,10 +455,23 @@ function renderSemana(){
   const w=$("week");w.innerHTML="";const S0=toMin("06:30"),row=m=>Math.round((m-S0)/15)+2;
   ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"].forEach((n,i)=>{const h=document.createElement("div");h.className="dh";h.style.gridColumn=i+2;h.textContent=n;w.appendChild(h)});
   for(let m=toMin("07:00");m<toMin("23:00");m+=60){const l=document.createElement("div");l.className="hr";l.style.gridRow=row(m);l.textContent=fmt(m);w.appendChild(l);const g=document.createElement("div");g.className="gl";g.style.gridRow=row(m);w.appendChild(g)}
-  [1,2,3,4,5,6,0].forEach((dow,i)=>buildDay(dow,null).forEach(([a,b,c,t])=>{
+  const weekItems=dow=>{const out=[];
+    buildDay(dow,null).forEach(it=>{let [a,b,c,t]=it;
+      if(t==="Llegada")return;
+      if(t==="Salir hacia la parada")t="Salir";
+      if(t==="Bus a la escuela")t="Bus";
+      const bib=/k-biblio/.test(c)&&!/Repaso \(fijo|Planificaci|Estudio/.test(t);
+      if(bib){c="k-biblio";t="Biblio"}
+      const prev=out[out.length-1];
+      if(bib&&prev&&prev[3]==="Biblio"&&a-prev[1]<=15){prev[1]=b;return}
+      if(t==="Bus"&&prev&&prev[3]==="Salir"){prev[1]=b;prev[3]="Salir+Bus";prev[4]=a;return}
+      out.push([a,b,c,t])});
+    return out};
+  [1,2,3,4,5,6,0].forEach((dow,i)=>weekItems(dow).forEach(([a,b,c,t,busAt])=>{
     const e=Math.min(b,toMin("23:00"));if(e<=a)return;
     const el=document.createElement("div");el.className="blk "+c;el.style.gridColumn=i+2;el.style.gridRow=row(a)+" / "+row(e);
     const sh=t.replace(" · luz · ducha · desayuno","").replace(/ · luz apagada.*/,"").replace("Repaso · ","Rep. ").replace(" (fijo de los viernes)","");
+    if(t==="Salir+Bus"){el.innerHTML='<b class="one"><small>'+fmt(a)+'</small> Salir</b><b class="one"><small>'+fmt(busAt)+'</small> Bus</b>';w.appendChild(el);return}
     el.innerHTML=e-a>=60?'<small>'+fmt(a)+'</small><b>'+esc(sh)+'</b>':'<b class="one"><small>'+fmt(a)+'</small> '+esc(sh)+'</b>';
     w.appendChild(el)}));
   const R=plan.routine;
