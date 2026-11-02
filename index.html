@@ -250,7 +250,7 @@ label.f{display:grid;gap:4px;font-size:14px;font-weight:500}
 <script>
 (function(){
 "use strict";
-const APP_VERSION="6";
+const APP_VERSION="8";
 const LS={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},
           set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 const $=id=>document.getElementById(id);
@@ -365,10 +365,11 @@ function buildDay(dow,d){
         add(a,b,"k-"+s+" cls",subjName(s),e?"HOY: "+e.label+". Comprueba hora y aula":nx?(nx.type==="exam"?"Examen":"Entrega")+" el "+shortDate(nx.date)+" · en "+nd+(nd===1?" día":" días"):"")});
       last=toMin(cls[cls.length-1][2]);
     }
-    const lunchEnd=last+R.lunch_min;
-    add(last,lunchEnd,"","Comer en la uni","Y directo a la biblio");
+    const LT=lab&&plan.lab_times&&plan.lab_times[d]?plan.lab_times[d].map(toMin):null;
+    const lunchEnd=LT&&LT[0]<last+R.lunch_min?LT[0]:last+R.lunch_min;
+    add(last,lunchEnd,"","Comer en la uni",LT&&LT[0]===lunchEnd?"Y a la práctica":"Y directo a la biblio");
     const runDay=(R.run_weekdays.includes(dow)&&!lab)||(dow===1&&d&&plan.lab_dates.includes(nextIso(d))&&R.run_weekdays.includes(2));
-    if(lab){
+    if(lab&&!LT){
       add(lunchEnd,"15:00","k-biblio","Biblio","Repaso corto antes de la práctica");
       add("15:00","21:00","k-lab","Prácticas de laboratorio de Física","Posible turno. Confirma tu horario");
       add("21:00",toMin("21:00")+R.bus_trip_min,"","Vuelta a casa","");
@@ -388,22 +389,31 @@ function buildDay(dow,d){
       const subs=[...new Set(cls.map(c=>c[0]))];
       const pt=d?planTasks(d):[];
       const seq=[];if(subs[0])seq.push(["rep",subs[0]]);seq.push(["A"]);subs.slice(1).forEach(s=>seq.push(["rep",s]));seq.push(["B"]);
-      let t=lunchEnd,i=0;
-      while(t+20<=closeAt){
-        const e=Math.min(t+BL,closeAt),it=seq[i]||["P"];i++;
-        if(it[0]==="rep")add(t,e,"k-biblio rep-"+it[1],"Repaso · "+subjName(it[1]),"Apuntes a limpio + 2–3 ejercicios de lo de hoy");
-        else if(it[0]==="A")add(t,e,"k-biblio","Tarea A",pt[0]?pt[0].text:"La tarea más importante del día");
-        else if(it[0]==="B")add(t,e,"k-biblio","Segunda tarea",pt[1]?pt[1].text:"Ejercicios o adelantar entregas");
-        else add(t,e,"k-biblio","Pendientes","Lo que se haya quedado atrás, o adelantar");
-        t=e+BR;
-      }
-      add(Math.min(t-BR,closeAt),end,"k-biblio","Cierre del día","Tacha tareas y apunta en Asignaturas lo que habéis dado");
-      const home=end+R.bus_trip_min;
-      add(end,home,"","Vuelta a casa","");
-      if(runDay){add(home,home+R.run_min,"k-correr","Correr","A ritmo cómodo, nada más llegar");add(home+R.run_min,dinner,"","Ducha","")}
-      else add(home,dinner,"k-libre","Libre","Canales, programación, descanso");
-      add(dinner,dinner+30,"k-cena","Cena","Todos los días a las "+R.dinner);
-      add(dinner+30,S-45,"k-libre","Tiempo libre","Pantallas en modo noche desde las 21:00");
+      const spans=LT?[[lunchEnd,LT[0]-BR],[LT[1]+BR,closeAt]]:[[lunchEnd,closeAt]];
+      let i=0,t=lunchEnd,lastEnd=null,labDone=false;
+      spans.forEach(([from,to],si)=>{
+        if(si===1&&LT){add(LT[0],LT[1],"k-lab","Práctica de laboratorio de Física","Subgrupo G02_02");labDone=true}
+        t=Math.max(t,from);
+        while(t+20<=to){
+          const e=Math.min(t+BL,to),it=seq[i]||["P"];i++;
+          if(it[0]==="rep")add(t,e,"k-biblio rep-"+it[1],"Repaso · "+subjName(it[1]),"Apuntes a limpio + 2–3 ejercicios de lo de hoy");
+          else if(it[0]==="A")add(t,e,"k-biblio","Tarea A",pt[0]?pt[0].text:"La tarea más importante del día");
+          else if(it[0]==="B")add(t,e,"k-biblio","Segunda tarea",pt[1]?pt[1].text:"Ejercicios o adelantar entregas");
+          else add(t,e,"k-biblio","Pendientes","Lo que se haya quedado atrás, o adelantar");
+          lastEnd=e;t=e+BR;
+        }
+      });
+      if(LT&&!labDone)add(LT[0],LT[1],"k-lab","Práctica de laboratorio de Física","Subgrupo G02_02");
+      const labEnd=LT?LT[1]:0;
+      if(!LT||labEnd<closeAt)add(Math.max(lastEnd!==null?lastEnd:lunchEnd,labEnd),end,"k-biblio","Cierre del día","Tacha tareas y apunta en Asignaturas lo que habéis dado");
+      const leave=Math.max(end,labEnd);
+      const home=leave+R.bus_trip_min;
+      add(leave,home,"","Vuelta a casa","");
+      const dn=Math.max(dinner,home);
+      if(runDay){add(home,home+R.run_min,"k-correr","Correr","A ritmo cómodo, nada más llegar");add(home+R.run_min,dn,"","Ducha","")}
+      else add(home,dn,"k-libre","Libre","Canales, programación, descanso");
+      add(dn,dn+30,"k-cena","Cena",dn>dinner?"Hoy más tarde por la práctica":"Todos los días a las "+R.dinner);
+      add(dn+30,S-45,"k-libre","Tiempo libre","Pantallas en modo noche desde las 21:00");
     }
   }else if(dow===6){
     const rs=toMin(R.run_saturday);
@@ -423,7 +433,8 @@ function buildDay(dow,d){
     add(dinner,dinner+30,"k-cena","Cena","Todos los días a las "+R.dinner);
     add(dinner+30,S-45,"k-libre","Tiempo libre","");
   }
-  add(S-45,S,"","Bajar revoluciones","Mochila lista · móvil fuera del cuarto · leer en papel");
+  const lastBusy=out.reduce((m,x)=>/k-libre/.test(x[2])?m:Math.max(m,x[1]),0);
+  add(Math.max(S-45,Math.min(lastBusy,S-15)),S,"","Bajar revoluciones","Mochila lista · móvil fuera del cuarto · leer en papel");
   add(S,S+30,"k-sueno","Dormir · luz apagada "+fmt(S),"Despertador "+R.wake);
   return out;
 }

@@ -112,11 +112,8 @@
   "break_min": 10
  },
  "lab_dates": [
-  "2026-11-10",
   "2026-11-11",
-  "2026-11-24",
   "2026-11-25",
-  "2026-12-15",
   "2026-12-16"
  ],
  "key_dates": {
@@ -272,11 +269,6 @@
   ],
   "2026-11-10": [
    {
-    "id": "261110a",
-    "text": "Posible práctica de Física 15–21 h (semana 10, confirma tu turno)",
-    "type": "lab"
-   },
-   {
     "id": "261110b",
     "text": "Física: temas en rojo, 1–2 bloques",
     "type": ""
@@ -285,7 +277,7 @@
   "2026-11-11": [
    {
     "id": "261111a",
-    "text": "Posible práctica de Física 15–21 h (semana 10, confirma tu turno)",
+    "text": "Práctica de Física 17–19 h (G02_02)",
     "type": "lab"
    },
    {
@@ -426,31 +418,17 @@
     "type": ""
    }
   ],
-  "2026-11-24": [
-   {
-    "id": "261124a",
-    "text": "Posible práctica de Física 15–21 h (semana 12)",
-    "type": "lab"
-   }
-  ],
   "2026-11-25": [
    {
     "id": "261125a",
-    "text": "Posible práctica de Física 15–21 h (semana 12)",
-    "type": "lab"
-   }
-  ],
-  "2026-12-15": [
-   {
-    "id": "261215a",
-    "text": "Posible práctica de Física 15–21 h (semana 15)",
+    "text": "Práctica de Física 19–21 h (G02_02)",
     "type": "lab"
    }
   ],
   "2026-12-16": [
    {
     "id": "261216a",
-    "text": "Posible práctica de Física 15–21 h (semana 15)",
+    "text": "Práctica de Física 15–17 h (G02_02)",
     "type": "lab"
    }
   ],
@@ -462,5 +440,20 @@
    }
   ]
  },
- "_routine_info": "bus_trip_min: minutos del bus + andar hasta la escuela (sin confirmar, 30 por defecto). friday_repaso: repaso fijo de los viernes (hora de fin sin confirmar)."
+ "_routine_info": "bus_trip_min: minutos del bus + andar hasta la escuela (sin confirmar, 30 por defecto). friday_repaso: repaso fijo de los viernes (hora de fin sin confirmar).",
+ "lab_times": {
+  "2026-11-11": [
+   "17:00",
+   "19:00"
+  ],
+  "2026-11-25": [
+   "19:00",
+   "21:00"
+  ],
+  "2026-12-16": [
+   "15:00",
+   "17:00"
+  ]
+ },
+ "_lab_info": "Prácticas de Física, subgrupo G02_02: 11 nov 17–19 h, 25 nov 19–21 h, 16 dic 15–17 h (confirmadas por Joan)."
 }
