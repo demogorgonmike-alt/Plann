@@ -8,7 +8,7 @@ App instalable (PWA) con el plan semanal de Joan: horario de 1º de Arquitectura
 |---|---|
 | `index.html` | La app entera (HTML, CSS y JS en un solo archivo) |
 | `plan.json` | **El plan**: horario, rutina, fechas clave, tareas por día, escalera de sueño |
-| `progress.json` | Lo que Joan marca como hecho desde la app (lo escribe la app) |
+| `progress.json` | Lo que escribe la app: tareas hechas (`done`), notas por asignatura (`notes`) y agenda (`agenda`) |
 | `sw.js` | Service worker: hace que funcione sin conexión |
 | `manifest.webmanifest`, iconos `*.png` | Nombre e icono de la app |
 
@@ -33,3 +33,15 @@ Cuando Joan pida cambios ("mueve lo de Física al jueves", "añade la entrega de
 6. Actualiza `updated` con la fecha del cambio.
 7. Para ver cómo va Joan, lee `progress.json`: `done[id].v = 1` está hecha, `0` desmarcada. Cruza los `id` con `plan.json`.
 8. Sube los cambios a `main` con un mensaje claro.
+
+## Para Claude: notas y agenda de Joan
+
+En `progress.json` (lo escribe la app; si lo editas, respeta el formato y sube `t` a la hora actual en ms):
+
+- `notes[id] = {"s": "mates", "text": "...", "d": "AAAA-MM-DD", "c": "HH:MM", "t": ms, "del": 0|1}`: lo que están dando en cada asignatura.
+- `agenda[id] = {"text": "...", "date": "AAAA-MM-DD" o "", "done": 0|1, "c": ..., "t": ms, "del": 0|1}`: cosas sueltas tipo agenda.
+- Los borrados se marcan con `del: 1`; no elimines claves, para que la sincronización no las resucite.
+
+## Rutina (`plan.json` → `routine`)
+
+Bus 07:45 (sale de casa 07:35), `bus_trip_min` = minutos de bus + andar (por confirmar), comer en la uni y biblio hasta `biblio_end`, cena fija a `dinner`, correr `run_weekdays` al llegar a casa y sábado por la mañana, repaso fijo los viernes en `friday_repaso`.

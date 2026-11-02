@@ -91,13 +91,25 @@
  },
  "routine": {
   "wake": "06:30",
-  "run_evening_weekdays": [
+  "leave_home": "07:35",
+  "bus": "07:45",
+  "bus_trip_min": 30,
+  "lunch_min": 40,
+  "biblio_end": "19:00",
+  "dinner": "20:30",
+  "run_weekdays": [
    2,
    4
   ],
-  "run_evening": "19:00",
+  "run_min": 40,
   "run_saturday": "08:00",
-  "weekly_planning": "18:00"
+  "friday_repaso": [
+   "15:40",
+   "17:40"
+  ],
+  "weekly_planning": "18:00",
+  "block_min": 50,
+  "break_min": 10
  },
  "lab_dates": [
   "2026-11-10",
@@ -446,5 +458,6 @@
     "type": ""
    }
   ]
- }
+ },
+ "_routine_info": "bus_trip_min: minutos del bus + andar hasta la escuela (sin confirmar, 30 por defecto). friday_repaso: repaso fijo de los viernes (hora de fin sin confirmar)."
 }

@@ -1,6 +1,6 @@
 // Service worker: guarda la app para que funcione sin conexión.
 // El plan (data/) se pide siempre a la red primero y, si no hay conexión, se usa la última copia.
-const CACHE = "mi-plan-v1";
+const CACHE = "mi-plan-v2";
 const SHELL = ["./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png", "apple-touch-icon.png", "plan.json"];
 
 self.addEventListener("install", e => {
