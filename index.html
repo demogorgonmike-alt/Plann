@@ -76,10 +76,17 @@ section{display:grid;gap:18px}
 .note{font-size:14px;color:var(--muted);margin:0}
 .dark{padding:12px 14px;background:var(--ink);color:#fff;border-radius:12px;font-size:14px}
 .weekscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
-.week{display:grid;grid-template-columns:40px repeat(7,minmax(96px,1fr));grid-template-rows:26px repeat(66,12px);min-width:720px}
+.week{display:grid;grid-template-columns:46px repeat(7,minmax(96px,1fr));grid-template-rows:26px repeat(198,4px);min-width:720px}
 .week .dh{grid-row:1;font-weight:600;font-size:14px;text-align:center}
-.week .hr{grid-column:1;font:11px var(--mono);color:var(--muted);transform:translateY(-6px)}
+.week .hr{grid-column:1;font:11px var(--mono);color:var(--muted);transform:translateY(-6px);position:sticky;left:0;z-index:5;padding-right:4px;align-self:start}
+.week .hcol{grid-column:1;grid-row:1 / 200;position:sticky;left:0;z-index:4;background:#fff;box-shadow:4px 0 6px -4px rgba(0,0,0,.12)}
 .week .gl{grid-column:2 / -1;border-top:1px solid var(--line)}
+.week .dh.today{color:#fff;background:var(--ink);border-radius:999px;margin:0 18px;align-self:center;padding:2px 0}
+.nowcol{position:relative;pointer-events:none;z-index:3}
+.nowline{position:absolute;left:0;right:0;height:2px;background:#111;border-radius:2px}
+.nowline::before{content:"";position:absolute;left:-5px;top:-4px;width:10px;height:10px;border-radius:50%;background:#111}
+.nowlbl{grid-column:1;grid-row:2 / 200;position:sticky;left:0;z-index:6;pointer-events:none}
+.nowlbl span{position:absolute;left:0;right:2px;text-align:center;font:600 11px var(--mono);color:#fff;background:#111;padding:2px 0;border-radius:999px}
 .blk{margin:1px 2px;border-radius:6px;padding:2px 6px;font-size:11.5px;line-height:1.2;overflow:hidden;background:var(--soft)}
 .blk b{display:block;font-weight:500}.blk b.one{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .blk small{font:10.5px var(--mono);opacity:.75}
@@ -251,7 +258,7 @@ label.f{display:grid;gap:4px;font-size:14px;font-weight:500}
 <script>
 (function(){
 "use strict";
-const APP_VERSION="11";
+const APP_VERSION="14";
 const LS={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},
           set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 const $=id=>document.getElementById(id);
@@ -471,8 +478,10 @@ function renderHoy(){
   $("hoy-sleep").innerHTML="<b>Esta noche:</b> cena a las "+plan.routine.dinner+", luz apagada a las <b>"+sleepTarget(today)+"</b>, despertador a las "+plan.routine.wake+".";
 }
 function renderSemana(){
-  const w=$("week");w.innerHTML="";const S0=toMin("06:30"),row=m=>Math.round((m-S0)/15)+2;
-  ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"].forEach((n,i)=>{const h=document.createElement("div");h.className="dh";h.style.gridColumn=i+2;h.textContent=n;w.appendChild(h)});
+  const w=$("week");w.innerHTML="";const S0=toMin("06:30"),row=m=>Math.round((m-S0)/5)+2;
+  const todayCol=(new Date().getDay()+6)%7;
+  const hc=document.createElement("div");hc.className="hcol";w.appendChild(hc);
+  ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"].forEach((n,i)=>{const h=document.createElement("div");h.className="dh"+(i===todayCol?" today":"");h.style.gridColumn=i+2;h.textContent=n;w.appendChild(h)});
   for(let m=toMin("07:00");m<toMin("23:00");m+=60){const l=document.createElement("div");l.className="hr";l.style.gridRow=row(m);l.textContent=fmt(m);w.appendChild(l);const g=document.createElement("div");g.className="gl";g.style.gridRow=row(m);w.appendChild(g)}
   const weekItems=dow=>{const out=[];
     buildDay(dow,null).forEach(it=>{let [a,b,c,t]=it;
@@ -493,8 +502,19 @@ function renderSemana(){
     if(t==="Salir+Bus"){el.innerHTML='<b class="one"><small>'+fmt(a)+'</small> Salir</b><b class="one"><small>'+fmt(busAt)+'</small> Bus</b>';w.appendChild(el);return}
     el.innerHTML=e-a>=60?'<small>'+fmt(a)+'</small><b>'+esc(sh)+'</b>':'<b class="one"><small>'+fmt(a)+'</small> '+esc(sh)+'</b>';
     w.appendChild(el)}));
+  const col=document.createElement("div");col.className="nowcol";col.id="nowcol";col.style.gridColumn="2 / -1";col.style.gridRow="2 / 200";
+  col.innerHTML='<div class="nowline" id="nowline"></div>';w.appendChild(col);
+  const lb=document.createElement("div");lb.className="nowlbl";lb.id="nowlbl";lb.innerHTML='<span id="nowtxt"></span>';w.appendChild(lb);
+  placeNow();
   const R=plan.routine;
   $("sem-note").textContent="Bus a las "+R.bus+" (salir a las "+R.leave_home+"). Después de clase, comer y directo a la biblio hasta las "+R.biblio_end+": bloques de "+R.block_min+" min + "+R.break_min+" de descanso, alternando el repaso de las asignaturas del día con las tareas del plan. Cena todos los días a las "+R.dinner+". Correr martes y jueves al llegar a casa, y el sábado por la mañana.";
+}
+function placeNow(){
+  const c=$("nowcol");if(!c)return;const n=new Date(),m=n.getHours()*60+n.getMinutes(),S0=toMin("06:30"),E=toMin("23:00");
+  const lb=$("nowlbl");
+  if(m<S0||m>=E){c.hidden=true;if(lb)lb.hidden=true;return}
+  const y=(m-S0)/5*4;c.hidden=false;$("nowline").style.top=(y-1)+"px";
+  if(lb){lb.hidden=false;const t=$("nowtxt");t.textContent=fmt(m);t.style.top=(y-9)+"px"}
 }
 function renderMes(){
   const box=$("months");box.innerHTML="";const today=iso(new Date()),endD=parseIso(plan.semester.end);
@@ -623,7 +643,8 @@ function renderAll(){if(!plan)return;renderCount();renderHoy();renderSemana();re
 const views=["hoy","semana","mes","asig","ajustes"];
 function show(v){if(!views.includes(v))v="hoy";$("countdown").hidden=v==="asig";if(v==="asig"&&asigView){asigView=null;if(plan)renderAsig()}views.forEach(x=>{$("view-"+x).hidden=x!==v});
   document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.view===v));window.scrollTo(0,0)}
-document.querySelectorAll("nav.tabs button").forEach(b=>b.addEventListener("click",()=>{show(b.dataset.view);try{history.replaceState(null,"","#"+b.dataset.view)}catch(e){}}));
+document.querySelectorAll("nav.tabs button").forEach(b=>b.addEventListener("click",()=>{show(b.dataset.view);
+  if(b.dataset.view==="semana"){const nl=$("nowline"),c=$("nowcol");if(nl&&c&&!c.hidden)setTimeout(()=>nl.scrollIntoView({block:"center",inline:"nearest"}),50)}try{history.replaceState(null,"","#"+b.dataset.view)}catch(e){}}));
 $("syncbtn").addEventListener("click",()=>{if(hasToken())syncProgress();else show("ajustes")});
 $("btn-save").addEventListener("click",async()=>{
   const repo=$("in-repo").value.trim().replace(/^https?:\/\/github\.com\//,"").replace(/\/$/,""),tok=$("in-token").value.trim();
@@ -640,7 +661,7 @@ $("btn-update").addEventListener("click",async()=>{
 $("btn-copy").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(summary());$("copy-msg").textContent="Copiado. Pégalo en el chat con Claude."}catch(e){$("copy-msg").textContent="No se pudo copiar automáticamente."}});
 window.addEventListener("online",syncProgress);
 document.addEventListener("visibilitychange",async()=>{if(document.visibilityState==="visible"){if(await loadPlan())renderAll();syncProgress()}});
-setInterval(()=>{if(plan&&!$("view-hoy").hidden)renderHoy()},60000);
+setInterval(()=>{if(!plan)return;if(!$("view-hoy").hidden)renderHoy();placeNow()},60000);
 (async()=>{
   if(plan)renderAll();
   const ok=await loadPlan();
